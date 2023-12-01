@@ -1,0 +1,311 @@
+data:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        release: devtron
+      name: devtron-1
+      namespace: devtroncd-1
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        release: devtron
+      name: cd-runner-1
+      namespace: devtron-cd
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      labels:
+        release: devtron
+      name: ci-runner-1
+      namespace: devtron-ci
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: workflow-cluster-role-1
+    rules:
+      - apiGroups:
+          - "*"
+        resources:
+          - deployments
+          - pods
+          - pods/exec
+        verbs:
+          - watch
+          - patch
+          - delete
+          - create
+          - list
+          - get
+          - update
+          - exec
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+        verbs:
+          - get
+          - watch
+          - patch
+      - apiGroups:
+          - ""
+        resources:
+          - pods/log
+        verbs:
+          - get
+          - watch
+      - apiGroups:
+          - ""
+        resources:
+          - configmaps
+        verbs:
+          - create
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+        verbs:
+          - create
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      labels:
+        rbac.authorization.k8s.io/aggregate-to-admin: "true"
+      name: argo-aggregate-to-admin-1
+    rules:
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflows
+          - workflows/finalizers
+        verbs:
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      labels:
+        rbac.authorization.k8s.io/aggregate-to-edit: "true"
+      name: argo-aggregate-to-edit-1
+    rules:
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflows
+          - workflows/finalizers
+        verbs:
+          - create
+          - delete
+          - deletecollection
+          - get
+          - list
+          - patch
+          - update
+          - watch
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      labels:
+        rbac.authorization.k8s.io/aggregate-to-view: "true"
+      name: argo-aggregate-to-view-1
+    rules:
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflows
+          - workflows/finalizers
+        verbs:
+          - get
+          - list
+          - watch
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: argo-cluster-role-1
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+          - pods/exec
+        verbs:
+          - create
+          - get
+          - list
+          - watch
+          - update
+          - patch
+          - delete
+      - apiGroups:
+          - ""
+        resources:
+          - configmaps
+        verbs:
+          - get
+          - watch
+          - list
+      - apiGroups:
+          - ""
+        resources:
+          - persistentvolumeclaims
+          - persistentvolumeclaims/finalizers
+        verbs:
+          - create
+          - update
+          - delete
+          - get
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflows
+          - workflows/finalizers
+          - workflowtasksets
+          - workflowtasksets/finalizers
+          - workflowartifactgctasks
+        verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+          - delete
+          - create
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflowtemplates
+          - workflowtemplates/finalizers
+          - clusterworkflowtemplates
+          - clusterworkflowtemplates/finalizers
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflowtaskresults
+          - workflowtaskresults/finalizers
+        verbs:
+          - list
+          - watch
+          - deletecollection
+      - apiGroups:
+          - ""
+        resources:
+          - serviceaccounts
+        verbs:
+          - get
+          - list
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - cronworkflows
+          - cronworkflows/finalizers
+        verbs:
+          - get
+          - list
+          - watch
+          - update
+          - patch
+          - delete
+      - apiGroups:
+          - ""
+        resources:
+          - events
+        verbs:
+          - create
+          - patch
+      - apiGroups:
+          - policy
+        resources:
+          - poddisruptionbudgets
+        verbs:
+          - create
+          - get
+          - delete
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: argo-ui-cluster-role-1
+    rules:
+      - apiGroups:
+          - ""
+        resources:
+          - pods
+          - pods/exec
+          - pods/log
+        verbs:
+          - get
+          - list
+          - watch
+      - apiGroups:
+          - ""
+        resources:
+          - secrets
+        verbs:
+          - get
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflows
+        verbs:
+          - get
+          - list
+          - watch
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devtron
+      name: devtron-1
+    rules:
+      - apiGroups:
+          - "*"
+        resources:
+          - "*"
+        verbs:
+          - "*"
+      - nonResourceURLs:
+          - "*"
+        verbs:
+          - "*"
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      labels:
+        app.kubernetes.io/instance: devtron
+      name: devtron-1
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: devtron-1
+    subjects:
+      - kind: ServiceAccount
+        name: devtron-1
+        namespace: devtroncd-1
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: workflow-cluster-role-1
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: workflow-cluster-role-1
+    subjects:
+      - kind: ServiceAccount
+        name: ci-runner-1
+        namespace: devtron-ci
+      - kind: ServiceAccount
+        name: cd-runner-1
+        namespace: devtron-cd
+      - kind: ServiceAccount
+        name: devtron-1
+        namespace: devtroncd-1
