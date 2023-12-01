@@ -1,0 +1,271 @@
+data:
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: postgresql-migrate-orchestrator-15
+    namespace: devtroncd-1
+  spec:
+    activeDeadlineSeconds: 1500
+    ttlSecondsAfterFinished: 600
+    backoffLimit: 20
+    completions: 1
+    parallelism: 1
+    suspend: false
+    template:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: "false"
+      spec:
+        imagePullSecrets:
+          - name: devtron-image-pull
+        initContainers:
+          - command:
+              - /bin/sh
+              - -c
+              - cp -r scripts/sql /shared/
+            image: quay.io/devtron/test:f9042ca8-48-1807
+            name: init-orchestrator
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        containers:
+          - command:
+              - /bin/sh
+              - -c
+              - if [ $(MIGRATE_TO_VERSION) -eq "0" ]; then migrate -path
+                $(SCRIPT_LOCATION) -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                up;  else   echo $(MIGRATE_TO_VERSION); migrate -path
+                $(SCRIPT_LOCATION)  -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                goto $(MIGRATE_TO_VERSION);    fi
+            env:
+              - name: SCRIPT_LOCATION
+                value: /shared/sql/
+              - name: DB_TYPE
+                value: postgres
+              - name: DB_USER_NAME
+                value: postgres
+              - name: DB_HOST
+                value: postgresql-postgresql.devtroncd
+              - name: DB_PORT
+                value: "5432"
+              - name: DB_NAME
+                value: orchestrator_jatin
+              - name: MIGRATE_TO_VERSION
+                value: "0"
+            envFrom:
+              - secretRef:
+                  name: postgresql-migrator
+            image: quay.io/devtron/migrator:v4.16.2
+            name: postgresql-migrate-orchestrator
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        restartPolicy: OnFailure
+        volumes:
+          - emptyDir: {}
+            name: shared-volume
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: postgresql-migrate-casbin-11
+    namespace: devtroncd-1
+  spec:
+    activeDeadlineSeconds: 1500
+    ttlSecondsAfterFinished: 600
+    backoffLimit: 20
+    completions: 1
+    parallelism: 1
+    suspend: false
+    template:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: "false"
+      spec:
+        imagePullSecrets:
+          - name: devtron-image-pull
+        initContainers:
+          - command:
+              - /bin/sh
+              - -c
+              - cp -r scripts/casbin /shared/
+            image: quay.io/devtron/test:f9042ca8-48-1807
+            name: init-casbin
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        containers:
+          - command:
+              - /bin/sh
+              - -c
+              - if [ $(MIGRATE_TO_VERSION) -eq "0" ]; then migrate -path
+                $(SCRIPT_LOCATION) -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                up;  else   echo $(MIGRATE_TO_VERSION); migrate -path
+                $(SCRIPT_LOCATION)  -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                goto $(MIGRATE_TO_VERSION);    fi
+            env:
+              - name: SCRIPT_LOCATION
+                value: /shared/casbin/
+              - name: DB_TYPE
+                value: postgres
+              - name: DB_USER_NAME
+                value: postgres
+              - name: DB_HOST
+                value: postgresql-postgresql.devtroncd
+              - name: DB_PORT
+                value: "5432"
+              - name: DB_NAME
+                value: casbin_jatin
+              - name: MIGRATE_TO_VERSION
+                value: "0"
+            envFrom:
+              - secretRef:
+                  name: postgresql-migrator
+            image: quay.io/devtron/migrator:v4.16.2
+            name: postgresql-migrate-casbin
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        restartPolicy: OnFailure
+        volumes:
+          - emptyDir: {}
+            name: shared-volume
+
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: postgresql-migrate-lens-10
+    namespace: devtroncd-1
+  spec:
+    activeDeadlineSeconds: 1500
+    ttlSecondsAfterFinished: 600
+    backoffLimit: 20
+    completions: 1
+    parallelism: 1
+    suspend: false
+    template:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: "false"
+      spec:
+        imagePullSecrets:
+          - name: devtron-image-pull
+        initContainers:
+          - command:
+              - /bin/sh
+              - -c
+              - cp -r sql /shared/
+            image: quay.io/devtron/lens:8803028b-333-16178
+            name: init-lens
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        containers:
+          - command:
+              - /bin/sh
+              - -c
+              - if [ $(MIGRATE_TO_VERSION) -eq "0" ]; then migrate -path
+                $(SCRIPT_LOCATION) -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                up;  else   echo $(MIGRATE_TO_VERSION); migrate -path
+                $(SCRIPT_LOCATION)  -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                goto $(MIGRATE_TO_VERSION);    fi
+            env:
+              - name: SCRIPT_LOCATION
+                value: /shared/sql/
+              - name: DB_TYPE
+                value: postgres
+              - name: DB_USER_NAME
+                value: postgres
+              - name: DB_HOST
+                value: postgresql-postgresql.devtroncd
+              - name: DB_PORT
+                value: "5432"
+              - name: DB_NAME
+                value: lens_jatin
+              - name: MIGRATE_TO_VERSION
+                value: "0"
+            envFrom:
+              - secretRef:
+                  name: postgresql-migrator
+            image: quay.io/devtron/migrator:v4.16.2
+            name: postgresql-migrate-lens
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        restartPolicy: OnFailure
+        volumes:
+          - emptyDir: {}
+            name: shared-volume
+
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: postgresql-migrate-git-sensor-10
+    namespace: devtroncd-1
+  spec:
+    activeDeadlineSeconds: 1500
+    ttlSecondsAfterFinished: 600
+    backoffLimit: 20
+    completions: 1
+    parallelism: 1
+    suspend: false
+    template:
+      metadata:
+        labels:
+          sidecar.istio.io/inject: "false"
+      spec:
+        imagePullSecrets:
+          - name: devtron-image-pull
+        initContainers:
+          - command:
+              - /bin/sh
+              - -c
+              - cp -r sql /shared/
+            image: quay.io/devtron/test:4f3b9a14-56-1912
+            name: init-git-sensor
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        containers:
+          - command:
+              - /bin/sh
+              - -c
+              - if [ $(MIGRATE_TO_VERSION) -eq "0" ]; then migrate -path
+                $(SCRIPT_LOCATION) -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                up;  else   echo $(MIGRATE_TO_VERSION); migrate -path
+                $(SCRIPT_LOCATION)  -database
+                postgres://$(DB_USER_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+                goto $(MIGRATE_TO_VERSION);    fi
+            env:
+              - name: SCRIPT_LOCATION
+                value: /shared/sql/
+              - name: DB_TYPE
+                value: postgres
+              - name: DB_USER_NAME
+                value: postgres
+              - name: DB_HOST
+                value: postgresql-postgresql.devtroncd
+              - name: DB_PORT
+                value: "5432"
+              - name: DB_NAME
+                value: git_sensor_jatin
+              - name: MIGRATE_TO_VERSION
+                value: "0"
+            envFrom:
+              - secretRef:
+                  name: postgresql-migrator
+            image: quay.io/devtron/migrator:v4.16.2
+            name: postgresql-migrate-git
+            volumeMounts:
+              - mountPath: /shared
+                name: shared-volume
+        restartPolicy: OnFailure
+        volumes:
+          - emptyDir: {}
+            name: shared-volume
