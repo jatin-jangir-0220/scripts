@@ -19,16 +19,22 @@ jobs:
       run: |
         git config user.email "jatinjangir0220@gmail.com"
         git config user.name "jatin-jangir"
+        git fetch --tags
 
-    - name: Get PR title
+    - name: Create Release Tag
       run: |
+        # Get the PR title and replace spaces with underscores
         PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr -d '[:space:]' | tr ' ' '_')
-        echo "PR_TITLE=$PR_TITLE" >> $GITHUB_ENV
 
-    - name: Create Release File
-      run: |
-        echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-        gh auth login --with-token <<< "$GH_TOKEN"
+        # Create a new tag using the PR title
+        git tag -a $PR_TITLE -m "Release $PR_TITLE"
+
+        # Push the tag to the repository
+        git push origin $PR_TITLE
+
+        # Checkout the newly created tag
+        git checkout $PR_TITLE
+
         for overlay in overlays/*; do
           overlay_name=$(basename "$overlay")
           output_folder="$tag/testPR/$overlay_name"
@@ -37,15 +43,13 @@ jobs:
           git add "$output_folder/kustomize_output.yaml"
         done
 
-        git commit -m "Add file for ${{ github.event.pull_request.title }}" -b release-commits
+        git commit -m "Add release.txt for ${{ github.event.pull_request.title }} in $PR_TITLE" -b releaser-test
+        git tag -f -a $PR_TITLE -m "Release $PR_TITLE with release.txt"
+        git push origin $PR_TITLE --force
 
-    - name: Create Release Tag
+        # Switch back to the main branch
+        git checkout main
+
+    - name: Push tag to origin
       run: |
-        # Get the PR title from environment variable
-        PR_TITLE=$PR_TITLE
-
-        # Create a new tag using the PR title
-        git tag -a $PR_TITLE -m "Release $PR_TITLE"
-
-        # Push the tag to the repository
         git push origin $PR_TITLE
