@@ -55,4 +55,3 @@ jobs:
         # Push the tag to the repository
         git push origin $PR_TITLE
 
-        
