@@ -46,6 +46,7 @@ jobs:
                 echo "Kustomize completed for $folder_name. Output stored in $output_folder"
             fi
         done
+        git add -A $OUTPUT_DIR   
         git commit -m "Add release for ${{ github.event.pull_request.title }} in $PR_TITLE" 
 
         # Create a new tag using the PR title
