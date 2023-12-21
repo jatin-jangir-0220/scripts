@@ -19,8 +19,6 @@ jobs:
       run: |
         git config user.email "jatinjangir0220@gmail.com"
         git config user.name "jatin-jangir"
-        echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-        gh auth login --with-token <<< "$GH_TOKEN"
 
     - name: Get PR title
       run: |
@@ -29,6 +27,8 @@ jobs:
 
     - name: Create Release File
       run: |
+        echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+        gh auth login --with-token <<< "$GH_TOKEN"
         for overlay in overlays/*; do
           overlay_name=$(basename "$overlay")
           output_folder="$tag/testPR/$overlay_name"
