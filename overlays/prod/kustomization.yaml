@@ -1,31 +1,24 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+labels:
+- includeSelectors: true
+  pairs:
+    enterprise: bharatpe
 
-bases:
-- ../../base
+# namespace: devtroncd
+resources:
+- ../../base/
 
-namespace: my-app-prod
-nameSuffix: -prod
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/templates/0/dag/tasks/0/arguments/parameters/4/value
+      value: "{\"replace\":{\"HIDE_HELM_APPS\":\"false\"}"
+  target:
+    group: argoproj.io
+    version: v1alpha1
+    kind: Workflow
+    name: release
 
-commonLabels:
-  foo: bar
-
-patchesStrategicMerge:
-- deployment_replicas.yaml
-- deployment_env.yaml
-- deployment_volume.yaml
-
-
-configMapGenerator:
-  - name: app-config
-    literals:
-      - username=prod-user
-
-secretGenerator:
-  - name: credentials
-    type: Opaque
-    literals:
-      - password=foo
-  - name: certs
-    files:
-      - assets/ca.pem
+namePrefix: bp-
+nameSuffix: -wf
