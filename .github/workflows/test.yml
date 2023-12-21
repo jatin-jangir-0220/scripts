@@ -20,7 +20,12 @@ jobs:
         git config user.email "jatinjangir0220@gmail.com"
         git config user.name "jatin-jangir"
         git fetch --tags
-
+    - name: Check if PR is merged into main
+      run: |
+        if [ "${{ github.event_name }}" != "pull_request" ] || [ "${{ github.event.pull_request.merged }}" != "true" ] || [ "${{ github.event.pull_request.base.ref }}" != "main" ]; then
+          echo "PR not merged into main, skipping the workflow."
+          exit 78  # Exit with a neutral status code (78 is used here, but you can choose any other non-zero value)
+        fi
     - name: Create Release Tag
       run: |
         # Get the PR title and replace spaces with underscores
