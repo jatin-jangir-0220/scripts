@@ -24,10 +24,10 @@ jobs:
     - name: Create Release Tag
       run: |
         # Get the PR title and replace spaces with underscores
-        PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr -d '[:space:]' | tr ' ' '_')
+        PR_TITLE=$(echo '${{ github.event.pull_request.title }}' | tr -d '[:space:]' | tr ' ' '_')
 
         # Create a new tag using the PR title
-        git tag -a $PR_TITLE -m "Release $PR_TITLE"
+        git tag -a $PR_TITLE -m 'Release $PR_TITLE'
 
         # Push the tag to the repository
         git push origin $PR_TITLE
@@ -36,15 +36,15 @@ jobs:
         git checkout $PR_TITLE
 
         for overlay in overlays/*; do
-          overlay_name=$(basename "$overlay")
-          output_folder="$tag/testPR/$overlay_name"
-          mkdir -p "$output_folder"
-          kustomize build "$overlay" > "$output_folder/kustomize_output.yaml"
-          git add "$output_folder/kustomize_output.yaml"
+          overlay_name=$(basename '$overlay')
+          output_folder='DAG/$overlay_name'
+          mkdir -p '$output_folder'
+          kustomize build '$overlay' > '$output_folder/kustomize_output.yaml'
+          git add '$output_folder/kustomize_output.yaml'
         done
 
-        git commit -m "Add release.txt for ${{ github.event.pull_request.title }} in $PR_TITLE" -b releaser-test
-        git tag -f -a $PR_TITLE -m "Release $PR_TITLE with release.txt"
+        git commit -m 'Add release.txt for ${{ github.event.pull_request.title }} in $PR_TITLE' -b releaser-test
+        git tag -f -a $PR_TITLE -m 'Release $PR_TITLE with release.txt'
         git push origin $PR_TITLE --force
 
         # Switch back to the main branch
