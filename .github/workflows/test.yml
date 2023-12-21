@@ -49,10 +49,6 @@ jobs:
 
         # Switch back to the main branch
         git checkout main
-
     - name: Push tag to origin
       run: |
         git push origin $PR_TITLE
-
-
-        
