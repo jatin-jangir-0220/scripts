@@ -26,15 +26,7 @@ jobs:
         # Get the PR title and replace spaces with underscores
         PR_TITLE=$(echo '${{ github.event.pull_request.title }}' | tr -d '[:space:]' | tr ' ' '_')
 
-        # Create a new tag using the PR title
-        git tag -a $PR_TITLE -m 'Release $PR_TITLE'
-
-        # Push the tag to the repository
-        git push origin $PR_TITLE
-
-        # Checkout the newly created tag
-        git checkout $PR_TITLE
-
+        git checkout -b releaser-test
         
         OVERLAYS_DIR="overlays"
         OUTPUT_DIR="DAG"
@@ -54,13 +46,15 @@ jobs:
                 echo "Kustomize completed for $folder_name. Output stored in $output_folder"
             fi
         done
+        git commit -m "Add release for ${{ github.event.pull_request.title }} in $PR_TITLE" 
 
-        git commit -m "Add release for ${{ github.event.pull_request.title }} in $PR_TITLE" -b releaser-test
-        git tag -f -a $PR_TITLE -m 'Release $PR_TITLE with release.txt'
-        git push origin $PR_TITLE --force
+        # Create a new tag using the PR title
+        git tag -a $PR_TITLE -m 'Release $PR_TITLE'
 
-        # Switch back to the main branch
-        git checkout main
+        # Push the tag to the repository
+        git push origin $PR_TITLE
+
+
     - name: Push tag to origin
       run: |
         git push origin $PR_TITLE
