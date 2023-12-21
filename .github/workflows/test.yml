@@ -35,12 +35,24 @@ jobs:
         # Checkout the newly created tag
         git checkout $PR_TITLE
 
-        for overlay in overlays/*; do
-          overlay_name=$(basename "$overlay")
-          output_folder="DAG/$overlay_name"
-          mkdir -p "$output_folder"
-          kustomize build "$overlay" > "$output_folder/kustomize_output.yaml"
-          git add "$output_folder/kustomize_output.yaml"
+        
+        OVERLAYS_DIR="overlays"
+        OUTPUT_DIR="DAG"
+        
+        # Ensure the output directory exists
+        mkdir -p "$OUTPUT_DIR"
+        
+        # Iterate over folders in the overlays directory
+        for folder in "$OVERLAYS_DIR"/*; do
+            if [ -d "$folder" ]; then
+                folder_name=$(basename "$folder")
+                output_folder="$OUTPUT_DIR/$folder_name"
+        
+                # Run kustomize for the current folder
+                kustomize build "$folder" -o "$output_folder"
+        
+                echo "Kustomize completed for $folder_name. Output stored in $output_folder"
+            fi
         done
 
         git commit -m "Add release for ${{ github.event.pull_request.title }} in $PR_TITLE" -b releaser-test
