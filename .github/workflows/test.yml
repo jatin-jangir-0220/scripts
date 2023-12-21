@@ -1,0 +1,52 @@
+name: Create Release Tag
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  create-release-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: main
+
+    - name: Set up Git with user info
+      run: |
+        git config user.email "jatinjangir0220@gmail.com"
+        git config user.name "jatin-jangir"
+        git fetch --tags
+
+    - name: Create Release Tag
+      run: |
+        # Get the PR title and replace spaces with underscores
+        PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | tr -d '[:space:]' | tr ' ' '_')
+
+        # Create a new tag using the PR title
+        git tag -a $PR_TITLE -m "Release $PR_TITLE"
+
+        # Push the tag to the repository
+        git push origin $PR_TITLE
+
+        # Checkout the newly created tag
+        git checkout $PR_TITLE
+
+        # Create release.txt file
+        echo "Release for ${{ github.event.pull_request.title }}" > release.txt
+
+        # Commit the release.txt file to the tag
+        git add release.txt
+        git commit -m "Add release.txt for ${{ github.event.pull_request.title }} in $PR_TITLE"
+        git tag -f -a $PR_TITLE -m "Release $PR_TITLE with release.txt"
+        git push origin $PR_TITLE --force
+
+        # Switch back to the main branch
+        git checkout main
+
+    - name: Push tag to origin
+      run: |
+        git push origin $PR_TITLE
