@@ -93,7 +93,7 @@ spec:
         - name: SECRET_DATA
           default: "null"
       container:
-        image: quay.io/devtron/devtron-utils:workflow-dag-v1
+        image: quay.io/devtron/devtron-utils:workflow-dag-v2
         command: [sh, -c]
         args: ["python3 bulk-edit.py"]
         env:
@@ -134,7 +134,7 @@ spec:
         - name: TIMEOUT_SECONDS
           default: "600"
       container:
-        image: quay.io/devtron/devtron-utils:workflow-dag-v1
+        image: quay.io/devtron/devtron-utils:workflow-dag-v2
         command: [sh, -c]
         args: ["python3 trigger-deploy.py"]
         env:
