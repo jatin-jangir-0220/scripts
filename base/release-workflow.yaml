@@ -12,7 +12,7 @@ spec:
   serviceAccountName: argo
   entrypoint: release
   onExit: notify
-  archiveLogs: true
+  archiveLogs: false
   artifactRepositoryRef:
     configMap: azure-blob-wf-logs-cm
     key: artifactRepository
