@@ -19,9 +19,9 @@ spec:
   arguments:
     parameters:
     - name: DEVTRON_BASE_URL
-      value: staging.devtron.info
+      value: devtron-orchestrator-staging-dcd-service.devtroncd
     - name: USE_HTTPS
-      value: "true"
+      value: "false"
     - name: LOG_LEVEL
       value: "-1"
     - name: ENTERPRISE_NAME
@@ -43,7 +43,7 @@ spec:
             - name: CM_NAMES
               value: test-cm
             - name: CM_DATA
-              value: '{"add":{"app":"demo-env"}}'
+              value: '{"replace":{"app":"eeeeeeee-env"}}'
         - name: kb-demo-release
           depends: update-kb-demo-cm
           template: trigger-deploy
@@ -54,7 +54,7 @@ spec:
             - name: ENV_NAME
               value:  demo-env
             - name: SOURCE_COMMIT_HASH
-              value: dfde5ecae5cd1ae6a7e3471a63a8277177898a7d
+              value: 6a824121778701ad7ad8505820dbdfd0e5c9a71e
 
     - name: notify
       steps:
@@ -93,7 +93,7 @@ spec:
         - name: SECRET_DATA
           default: "null"
       container:
-        image: quay.io/devtron/test:e3f49d85-568-20142
+        image: quay.io/devtron/devtron-utils:workflow-dag-v1
         command: [sh, -c]
         args: ["python3 bulk-edit.py"]
         env:
@@ -134,7 +134,7 @@ spec:
         - name: TIMEOUT_SECONDS
           default: "600"
       container:
-        image: quay.io/devtron/test:e3f49d85-568-20142
+        image: quay.io/devtron/devtron-utils:workflow-dag-v1
         command: [sh, -c]
         args: ["python3 trigger-deploy.py"]
         env:
