@@ -19,43 +19,42 @@ spec:
   arguments:
     parameters:
     - name: DEVTRON_BASE_URL
-      value: cd.devtron.ai
+      value: staging.devtron.info
     - name: USE_HTTPS
       value: "true"
     - name: LOG_LEVEL
       value: "-1"
     - name: ENTERPRISE_NAME
-      value: staging
+      value: demo
   templates:
     - name: release
       dag:
         tasks:
-        - name: update-dashboard-cm
+        - name: update-kb-demo-cm
           template: bulk-edit
-          depends: orchestrator-release
           arguments:
             parameters:
             - name: APP_NAMES
-              value: kubectl-access
+              value: kb-test-app-rollout-chart
             - name: ENV_NAMES
-              value: staging-dcd
+              value: demo-env
             - name: IS_GLOBAL
               value: "true"
             - name: CM_NAMES
               value: test-cm
             - name: CM_DATA
-              value: '{"add":{"app":"staging"}}'
-        - name: dashboard-release
-          depends: update-dashboard-cm
+              value: '{"add":{"app":"demo-env"}}'
+        - name: kb-demo-release
+          depends: update-kb-demo-cm
           template: trigger-deploy
           arguments:
             parameters:
             - name: APP_NAME
-              value: kubectl-access
+              value: kb-test-app-rollout-chart
             - name: ENV_NAME
-              value: staging-dcd
+              value:  demo-env
             - name: SOURCE_COMMIT_HASH
-              value: 21e64becb852d022e7ade3a1f803e90437a2312f
+              value: dfde5ecae5cd1ae6a7e3471a63a8277177898a7d
 
     - name: notify
       steps:
