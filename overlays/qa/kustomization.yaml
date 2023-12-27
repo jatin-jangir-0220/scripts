@@ -9,5 +9,20 @@ labels:
 resources:
 - ../../base/
 
-namePrefix: qa-
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/templates/0/dag/tasks/0/arguments/parameters/1/value
+      value: "demo-env"
+    - op: replace
+      path: /spec/templates/0/dag/tasks/1/arguments/parameters/1/value
+      value: "demo-env"
+  target:
+    group: argoproj.io
+    version: v1alpha1
+    kind: Workflow
+    name: release
+
+namePrefix: demo-env-
 nameSuffix: -wf
