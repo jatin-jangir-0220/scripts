@@ -3,11 +3,26 @@ kind: Kustomization
 labels:
 - includeSelectors: true
   pairs:
-    enterprise: staging
+    enterprise: devtron-demo
 
 # namespace: devtroncd
 resources:
 - ../../base/
 
-namePrefix: stage-
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/templates/0/dag/tasks/0/arguments/parameters/1/value
+      value: "devtron-demo"
+    - op: replace
+      path: /spec/templates/0/dag/tasks/1/arguments/parameters/1/value
+      value: "devtron-demo"
+  target:
+    group: argoproj.io
+    version: v1alpha1
+    kind: Workflow
+    name: release
+
+namePrefix: devtron-demo-
 nameSuffix: -wf
