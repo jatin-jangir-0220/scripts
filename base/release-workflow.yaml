@@ -1,0 +1,178 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: release
+  namespace: argo
+  annotations:
+    workflows.argoproj.io/description: |
+      This is a sample workflow for enterprise releases using DAG
+spec:
+  ttlStrategy:
+    secondsAfterCompletion: 3600
+  serviceAccountName: argo
+  entrypoint: release
+  onExit: notify
+  archiveLogs: true
+  artifactRepositoryRef:
+    configMap: azure-blob-wf-logs-cm
+    key: artifactRepository
+  arguments:
+    parameters:
+    - name: DEVTRON_BASE_URL
+      value: cd.devtron.ai
+    - name: USE_HTTPS
+      value: "true"
+    - name: LOG_LEVEL
+      value: "-1"
+    - name: ENTERPRISE_NAME
+      value: staging
+  templates:
+    - name: release
+      dag:
+        tasks:
+        - name: update-dashboard-cm
+          template: bulk-edit
+          depends: orchestrator-release
+          arguments:
+            parameters:
+            - name: APP_NAMES
+              value: kubectl-access
+            - name: ENV_NAMES
+              value: staging-dcd
+            - name: IS_GLOBAL
+              value: "true"
+            - name: CM_NAMES
+              value: test-cm
+            - name: CM_DATA
+              value: '{"add":{"app":"staging"}}'
+        - name: dashboard-release
+          depends: update-dashboard-cm
+          template: trigger-deploy
+          arguments:
+            parameters:
+            - name: APP_NAME
+              value: kubectl-access
+            - name: ENV_NAME
+              value: staging-dcd
+            - name: SOURCE_COMMIT_HASH
+              value: 21e64becb852d022e7ade3a1f803e90437a2312f
+
+    - name: notify
+      steps:
+      - - name: notify-success
+          template: notifier
+          when: "{{workflow.status}} == Succeeded"
+          arguments:
+            parameters:
+            - name: EMBED_COLOR
+              value: 65280
+            
+        - name: notify-failure
+          template: notifier
+          when: "{{workflow.status}} != Succeeded"
+          arguments:
+            parameters:
+            - name: EMBED_COLOR
+              value: 16711680
+
+    - name: bulk-edit
+      inputs:
+        parameters:
+        - name: APP_NAMES
+        - name: ENV_NAMES
+          default: "None"
+        - name: ENV_IDS
+          default: "None"
+        - name: IS_GLOBAL
+          default: "false"
+        - name: CM_NAMES
+          default: "None"
+        - name: CM_DATA
+          default: "null"
+        - name: SECRET_NAMES
+          default: "None"
+        - name: SECRET_DATA
+          default: "null"
+      container:
+        image: quay.io/devtron/test:e3f49d85-568-20142
+        command: [sh, -c]
+        args: ["python3 bulk-edit.py"]
+        env:
+        - name: DEVTRON_BASE_URL
+          value: "{{workflow.parameters.DEVTRON_BASE_URL}}"
+        - name: DEVTRON_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: release-dag-secret
+              key: token
+        - name: USE_HTTPS
+          value: "{{workflow.parameters.USE_HTTPS}}"
+        - name: LOG_LEVEL
+          value: "{{workflow.parameters.LOG_LEVEL}}"
+        - name: APP_NAMES
+          value: "{{inputs.parameters.APP_NAMES}}"
+        - name: ENV_NAMES
+          value: "{{inputs.parameters.ENV_NAMES}}"
+        - name: ENV_IDS
+          value: "{{inputs.parameters.ENV_IDS}}"
+        - name: IS_GLOBAL
+          value: "{{inputs.parameters.IS_GLOBAL}}"
+        - name: CM_NAMES
+          value: "{{inputs.parameters.CM_NAMES}}"
+        - name: CM_DATA
+          value: "{{inputs.parameters.CM_DATA}}"
+        - name: SECRET_NAMES
+          value: "{{inputs.parameters.SECRET_NAMES}}"
+        - name: SECRET_DATA
+          value: "{{inputs.parameters.SECRET_DATA}}"
+    
+    - name: trigger-deploy
+      inputs:
+        parameters:
+        - name: APP_NAME
+        - name: ENV_NAME
+        - name: SOURCE_COMMIT_HASH
+        - name: TIMEOUT_SECONDS
+          default: "600"
+      container:
+        image: quay.io/devtron/test:e3f49d85-568-20142
+        command: [sh, -c]
+        args: ["python3 trigger-deploy.py"]
+        env:
+        - name: DEVTRON_BASE_URL
+          value: "{{workflow.parameters.DEVTRON_BASE_URL}}"
+        - name: DEVTRON_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: release-dag-secret
+              key: token
+        - name: LOG_LEVEL
+          value: "{{workflow.parameters.LOG_LEVEL}}"
+        - name: USE_HTTPS
+          value: "{{workflow.parameters.USE_HTTPS}}"
+        - name: APP_NAME
+          value: "{{inputs.parameters.APP_NAME}}"
+        - name: ENV_NAME
+          value: "{{inputs.parameters.ENV_NAME}}"
+        - name: SOURCE_COMMIT_HASH
+          value: "{{inputs.parameters.SOURCE_COMMIT_HASH}}"
+        - name: TIMEOUT_SECONDS
+          value: "{{inputs.parameters.TIMEOUT_SECONDS}}"
+
+    - name: notifier
+      inputs:
+        parameters:
+          - name: EMBED_COLOR
+          - name: AVATAR_URL
+            default: "https://artifacthub.io/image/98440df4-0317-4777-8a92-3d7aead03382@3x"
+      script:
+        image: curlimages/curl:8.1.2
+        command: [sh]
+        source: | 
+          curl -H 'Content-Type: application/json' -d '{"username": "DAG-Hook", "avatar_url": "{{inputs.parameters.AVATAR_URL}}", "embeds": [{"title": "[{{workflow.status}}] Workflow Status {{workflow.status}} for Enterprise {{workflow.parameters.ENTERPRISE_NAME}}", "color":{{inputs.parameters.EMBED_COLOR}}}]}' $DISCORD_WEBHOOK_URL
+        env:
+        - name: DISCORD_WEBHOOK_URL
+          valueFrom:
+            secretKeyRef:
+              name: release-dag-secret
+              key: discord_url
