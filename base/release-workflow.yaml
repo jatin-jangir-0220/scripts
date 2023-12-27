@@ -54,7 +54,7 @@ spec:
             - name: ENV_NAME
               value:  demo-env
             - name: SOURCE_COMMIT_HASH
-              value: dfde5ecae5cd1ae6a7e3471a63a8277177898a7d
+              value: 6a824121778701ad7ad8505820dbdfd0e5c9a71e
 
     - name: notify
       steps:
