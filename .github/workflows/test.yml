@@ -1,63 +1,21 @@
-name: Create Release Tag
+name: Daily Task
 
 on:
-  pull_request:
-    types:
-      - closed
+  schedule:
+    - cron: '*/5 * * * *'  # Runs at 8 AM and 8 PM daily
 
 jobs:
-  create-release-tag:
+  daily-task:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        ref: main
-
-    - name: Set up Git with user info
+    - name: Check for and add label
       run: |
-        git config user.email "jatinjangir0220@gmail.com"
-        git config user.name "jatin-jangir"
-        git fetch --tags
-    - name: Check if PR is merged into main
-      run: |
-        if [ "${{ github.event_name }}" != "pull_request" ] || [ "${{ github.event.pull_request.merged }}" != "true" ] || [ "${{ github.event.pull_request.base.ref }}" != "main" ]; then
-          echo "PR not merged into main, skipping the workflow."
-          exit 78  # Exit with a neutral status code (78 is used here, but you can choose any other non-zero value)
+        if [[ ! $(gh issue label "$ISSUE_NUMBER" --list) =~ "$LABEL_NAME" ]]; then
+          gh issue edit "$ISSUE_NUMBER" --add-label "$LABEL_NAME"
         fi
-    - name: Create Release Tag
-      run: |
-        # Get the PR title and replace spaces with underscores
-        PR_TITLE=$(echo '${{ github.event.pull_request.title }}' | tr -d '[:space:]' | tr ' ' '_')
-
-        git checkout -b releaser-test
-        
-        OVERLAYS_DIR="overlays"
-        OUTPUT_DIR="DAG"
-        
-        # Ensure the output directory exists
-        mkdir -p "$OUTPUT_DIR"
-        
-        # Iterate over folders in the overlays directory
-        for folder in "$OVERLAYS_DIR"/*; do
-            if [ -d "$folder" ]; then
-                folder_name=$(basename "$folder")
-                output_folder="$OUTPUT_DIR/$folder_name"
-        
-                # Run kustomize for the current folder
-                kustomize build "$folder" -o "$output_folder"
-        
-                echo "Kustomize completed for $folder_name. Output stored in $output_folder"
-            fi
-        done
-        git add -A $OUTPUT_DIR   
-        git commit -m "Add release for ${{ github.event.pull_request.title }} in $PR_TITLE" 
-
-        # Create a new tag using the PR title
-        git tag -a $PR_TITLE -m 'Release $PR_TITLE'
-
-        # Push the tag to the repository
-        git push origin $PR_TITLE
+      env:
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
+        LABEL_NAME: "initial-label"
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
