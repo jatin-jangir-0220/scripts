@@ -5,14 +5,29 @@ on:
     types:
       [opened, labeled, edited] # Runs at 8 AM and 8 PM daily
 
+
 jobs:
-  daily-task:
+  daily-task-check:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Check for and add label
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ref: release-bot
+
+    - name: Set up Git with user info
+      run: |
+        git config user.email "jatin@devtron.ai"
+        git config user.name "jatin-jangir"
+        git fetch --tags
+
+    - name: daily-ticket-checker
       run: |
         git checkout main
-        python3 ../daily-ticket-checker.py
+        python3 daily-ticket-checker.py
       env:
+        GH_TOKEN: ${{ secrets.GIT_TOKEN }}
         PROJECT_ID: "1"
+
 
