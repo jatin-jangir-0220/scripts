@@ -23,7 +23,7 @@ jobs:
 
     - name: daily-ticket-checker
       run: |
-        gh project item-list 1 --format json --owner jatin-jangir-0220
+        python3 daily-ticket-checker.py
       env:
         GH_TOKEN: ${{ github.token }}
         PROJECT_ID: "1"
