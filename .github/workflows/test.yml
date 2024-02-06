@@ -19,11 +19,11 @@ jobs:
     - name: Set up Git with user info
       run: |
         git config user.email "jatin@devtron.ai"
-        git config user.name "jatin-jangir"
+        git config user.name "jatin-jangir-0220"
 
     - name: daily-ticket-checker
       run: |
-        gh project item-list 1 --format json --owner @me
+        gh project item-list 1 --format json --owner jatin-jangir-0220
       env:
         GH_TOKEN: ${{ github.token }}
         PROJECT_ID: "1"
