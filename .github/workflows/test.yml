@@ -2,7 +2,7 @@ name: Daily Task
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Runs at 8 AM and 8 PM daily
+    - cron: '1/5 * * * *'  # Runs at 8 AM and 8 PM daily
 
 jobs:
   daily-task:
@@ -10,12 +10,7 @@ jobs:
     steps:
     - name: Check for and add label
       run: |
-        if [[ ! $(gh issue label "$ISSUE_NUMBER" --list) =~ "$LABEL_NAME" ]]; then
-          gh issue edit "$ISSUE_NUMBER" --add-label "$LABEL_NAME"
-        fi
+        python3 daily-ticket-checker.py
       env:
-        ISSUE_NUMBER: ${{ github.event.issue.number }}
-        LABEL_NAME: "initial-label"
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+        PROJECT_ID: "6"
 
