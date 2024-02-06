@@ -28,7 +28,7 @@ jobs:
         gh issue list
         gh project item-list 1 --format json
       env:
-        GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+        GH_TOKEN: ${{ github.token }}
         PROJECT_ID: "1"
 
 
