@@ -24,7 +24,8 @@ jobs:
 
     - name: daily-ticket-checker
       run: |
-        git checkout main
+        echo $GH_TOKEN
+        gh issue list
         gh project item-list 1 --format json
       env:
         GH_TOKEN: ${{ secrets.GIT_TOKEN }}
