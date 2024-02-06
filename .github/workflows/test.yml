@@ -20,13 +20,10 @@ jobs:
       run: |
         git config user.email "jatin@devtron.ai"
         git config user.name "jatin-jangir"
-        git fetch --tags
 
     - name: daily-ticket-checker
       run: |
-        echo $GH_TOKEN
-        gh issue list
-        gh project item-list 1 --format json
+        gh project item-list 1 --format json --owner @me
       env:
         GH_TOKEN: ${{ github.token }}
         PROJECT_ID: "1"
