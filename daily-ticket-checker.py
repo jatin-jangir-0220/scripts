@@ -141,7 +141,7 @@ def remove_label_from_issue(issue_number, label_name):
 
 default_value = "6"
 project_id = os.getenv("PROJECT_ID", default_value)
-command = "gh project  item-list "+project_id+" --format json --owner @me"
+command = "gh project  item-list "+project_id+" --format json --owner jatin-jangir-0220"
 issues = run_gh_command(command)
 # pretty_json = prettify_json(issues, indent=2, sort_keys=True)
 # print(pretty_json)
