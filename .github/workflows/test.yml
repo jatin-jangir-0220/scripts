@@ -14,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        ref: release-bot
+        ref: main
 
     - name: Set up Git with user info
       run: |
