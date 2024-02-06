@@ -46,11 +46,12 @@ def run_gh_command(command):
     """
 
     try:
+        print(command)
         # Use capture_output for cleaner code and error handling
         result = subprocess.run(
             command.split(), capture_output=True, text=True, check=True
         )
-
+        print(result)
         # Check for successful execution
         if result.returncode != 0:
             raise Exception(f"Failed to run gh command: {result.stderr}")
