@@ -12,5 +12,5 @@ jobs:
       run: |
         python3 daily-ticket-checker.py
       env:
-        PROJECT_ID: "6"
+        PROJECT_ID: "1"
 
