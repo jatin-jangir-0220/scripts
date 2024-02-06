@@ -1,8 +1,9 @@
 name: Daily Task
 
 on:
-  schedule:
-    - cron: '1 * * * *'  # Runs at 8 AM and 8 PM daily
+  issues:
+    types:
+      [opened, labeled, edited] # Runs at 8 AM and 8 PM daily
 
 jobs:
   daily-task:
