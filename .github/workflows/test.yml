@@ -7,21 +7,21 @@ on:
 
 
 jobs:
-  daily-task-check:
+  run_gh_command:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-      with:
-        ref: main
-
-    - name: Set up Git with user info
+      
+    - name: Install GitHub CLI
       run: |
-        git config user.email "jatin@devtron.ai"
-        git config user.name "jatin-jangir-0220"
-
-    - name: daily-ticket-checker
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+        sudo apt-add-repository https://cli.github.com/packages
+        sudo apt update
+        sudo apt install gh
+      
+    - name: Run gh command
       run: |
         gh project item-list 1 --format json --owner jatin-jangir-0220
       env:
