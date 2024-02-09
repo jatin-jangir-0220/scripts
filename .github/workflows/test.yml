@@ -6,21 +6,21 @@ on:
       [opened, labeled, edited] # Runs at 8 AM and 8 PM daily
 
 
-jobs:
-  run_gh_command:
-    runs-on: ubuntu-latest
+env:
+  GH_TOKEN: ${{ secrets.GH_TOKEN }} # setting GH_TOKEN for the entire workflow
 
+jobs:
+  prebuild:
+    runs-on: ubuntu-latest
+    # env: 
+    #   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # setting GH_TOKEN for the entire job
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-      
-      
-    - name: Run gh command
-      run: |
-        echo $GIT_TOKEN | gh auth login --with-token
-        gh project item-list 1 --format json --owner jatin-jangir-0220
-      env:
-        GIT_TOKEN: ${{ github.token }}
-        PROJECT_ID: "1"
+    - run: |
+        gh api -X GET /repos/${{ GITHUB.REPOSITORY }}/topics --jq='.names'
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - run: |
+        gh api -X GET /repos/${{ GITHUB.REPOSITORY }}/branches --jq='.[].name'
 
 
