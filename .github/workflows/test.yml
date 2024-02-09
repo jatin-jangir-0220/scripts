@@ -17,6 +17,7 @@ jobs:
       
     - name: Run gh command
       run: |
+        echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
         gh project item-list 1 --format json --owner jatin-jangir-0220
       env:
         GH_TOKEN: ${{ github.token }}
