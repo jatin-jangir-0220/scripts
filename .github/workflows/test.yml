@@ -17,10 +17,10 @@ jobs:
       
     - name: Run gh command
       run: |
-        echo $GH_TOKEN | gh auth login --with-token
+        echo $GIT_TOKEN | gh auth login --with-token
         gh project item-list 1 --format json --owner jatin-jangir-0220
       env:
-        GH_TOKEN: ${{ github.token }}
+        GIT_TOKEN: ${{ github.token }}
         PROJECT_ID: "1"
 
 
