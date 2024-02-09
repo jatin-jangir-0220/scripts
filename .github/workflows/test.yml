@@ -5,24 +5,12 @@ on:
     types:
       [opened, labeled, edited] # Runs at 8 AM and 8 PM daily
 
-
-env:
-  GH_TOKEN: ${{ secrets.GIT_TOKEN }} # setting GH_TOKEN for the entire workflow
-
 jobs:
-  prebuild:
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GIT_TOKEN }} # setting GH_TOKEN for the entire job
-    steps:
-    - run: |
-        gh api -X GET /repos/${{ GITHUB.REPOSITORY }}/topics --jq='.names'
   build:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GIT_TOKEN }}
     steps:
-    - run: |
-        gh api -X GET /repos/${{ GITHUB.REPOSITORY }}/branches --jq='.[].name'
-
+    - run: gh issue create --title "My new issue" --body "Here are more details."
+      env:
+        GH_TOKEN: ${{ secrets.GIT_TOKEN }}
+        
 
