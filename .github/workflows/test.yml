@@ -12,13 +12,15 @@ env:
 jobs:
   prebuild:
     runs-on: ubuntu-latest
-    # env: 
-    #   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # setting GH_TOKEN for the entire job
+    env:
+      GH_TOKEN: ${{ secrets.GIT_TOKEN }} # setting GH_TOKEN for the entire job
     steps:
     - run: |
         gh api -X GET /repos/${{ GITHUB.REPOSITORY }}/topics --jq='.names'
   build:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GIT_TOKEN }}
     steps:
     - run: |
         gh api -X GET /repos/${{ GITHUB.REPOSITORY }}/branches --jq='.[].name'
