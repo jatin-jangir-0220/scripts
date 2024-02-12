@@ -14,8 +14,11 @@ jobs:
 
     - name: Set up Git with user info
       run: |
+        git clone https://github.com/jatin-jangir-0220/scripts.git
+        cd scripts
         git config user.email "jatin@devtron.ai"
         git config user.name "jatin-jangir-0220"
+      
 
     - name: daily-ticket-checker
       run: |
